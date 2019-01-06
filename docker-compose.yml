@@ -1,0 +1,57 @@
+version: "3.6"
+
+services:
+
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: database
+      MYSQL_USER: wordpressuser
+      MYSQL_PASSWORD: password
+    volumes:
+      - source: db_data
+        target: /var/lib/mysql
+        type: volume
+    networks:
+      - overlay2
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: 123456
+    ports:
+      - 8080:80
+    networks:
+      - overlay2
+    depends_on:
+      - mysql
+
+  myfirstproject:
+    image: wordpress
+    container_name: myproject
+    environment:
+      WORDPRESS_DB_USER: wordpressuser
+      WORDPRESS_DB_PASSWORD: password
+      WORDPRESS_DB_NAME: database
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DEBUG: 1
+    volumes:
+      - "./myfirstproject/web:/var/www/html"
+    ports:
+      - "80:80"
+    networks:
+      - overlay2
+    depends_on:
+      - mysql
+
+volumes:
+  db_data:
+    name: myproject_db
+
+networks:
+  overlay2:
+    name: myproject
