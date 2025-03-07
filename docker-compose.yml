@@ -1,57 +1,62 @@
-version: "3.6"
+version: "3.8"  # Specify the version of the Docker Compose file format
 
 services:
 
-  mysql:
-    image: mysql:5.7
-    container_name: mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: 123456
-      MYSQL_DATABASE: database
-      MYSQL_USER: wordpressuser
-      MYSQL_PASSWORD: password
+  mysql:  # MySQL database service
+    image: mysql:5.7  # Use the MySQL 5.7 image
+    container_name: mysql  # Name the container "mysql"
+    environment:  # Environment variables for MySQL
+      MYSQL_ROOT_PASSWORD: 123456  # Root password for MySQL
+      MYSQL_DATABASE: database  # Name of the database to create
+      MYSQL_USER: wordpressuser  # User for WordPress to connect
+      MYSQL_PASSWORD: password  # Password for the WordPress user
     volumes:
-      - source: db_data
-        target: /var/lib/mysql
-        type: volume
+      - db_data:/var/lib/mysql  # Persist MySQL data in a Docker volume
     networks:
-      - overlay2
+      - default  # Connect to the default network
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin
-    environment:
-      PMA_HOST: mysql
-      MYSQL_ROOT_PASSWORD: 123456
+  phpmyadmin:  # phpMyAdmin service for managing MySQL
+    image: phpmyadmin/phpmyadmin  # Use the phpMyAdmin image
+    container_name: phpmyadmin  # Name the container "phpmyadmin"
+    environment:  # Environment variables for phpMyAdmin
+      PMA_HOST: mysql  # Hostname of the MySQL server
+      MYSQL_ROOT_PASSWORD: 123456  # Root password for MySQL
     ports:
-      - 8080:80
+      - 8080:80  # Map port 8080 on the host to port 80 in the container
     networks:
-      - overlay2
-    depends_on:
+      - default  # Connect to the default network
+    depends_on:  # Ensure MySQL starts before phpMyAdmin
       - mysql
 
-  myfirstproject:
-    image: wordpress
-    container_name: myproject
-    environment:
-      WORDPRESS_DB_USER: wordpressuser
-      WORDPRESS_DB_PASSWORD: password
-      WORDPRESS_DB_NAME: database
-      WORDPRESS_DB_HOST: mysql
-      WORDPRESS_DEBUG: 1
+  myfirstproject:  # WordPress service - change to your project name
+    image: wordpress  # Use the WordPress image
+    container_name: myproject  # Name the container "myproject"
+    environment:  # Environment variables for WordPress
+      WORDPRESS_DB_USER: wordpressuser  # MySQL user for WordPress
+      WORDPRESS_DB_PASSWORD: password  # MySQL password for WordPress
+      WORDPRESS_DB_NAME: database  # Database name for WordPress
+      WORDPRESS_DB_HOST: mysql  # Hostname of the MySQL server
+      WORDPRESS_DEBUG: 1  # Enable debugging in WordPress (set to 0 in production)
     volumes:
-      - "./myfirstproject/web:/var/www/html"
+      - "./myfirstproject/web:/var/www/html"  # Map local directory to container
     ports:
-      - "80:80"
+      - "80:80"  # Map port 80 on the host to port 80 in the container
     networks:
-      - overlay2
-    depends_on:
+      - default  # Connect to the default network
+    depends_on:  # Ensure MySQL starts before WordPress
       - mysql
 
 volumes:
-  db_data:
-    name: myproject_db
+  db_data:  # Define a volume for MySQL data
+    name: myproject_db  # Name the volume
 
 networks:
-  overlay2:
-    name: myproject
+  default:  # Define the default network
+    driver: bridge  # Use the bridge network driver for local development
+	
+# networks:   
+#  overlay2:
+# name: myproject 
+
+
+#The overlay network driver is primarily used in Docker Swarm mode to enable communication between containers running on different Docker hosts. It allows you to create a multi-host network, which is useful for scaling applications across multiple machines.
