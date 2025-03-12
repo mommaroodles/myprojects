@@ -1,6 +1,7 @@
+name: myfirstproject
 services:
-
-  mysql:  # MySQL database service
+	
+ mysql:  # MySQL database service
     image: mysql:5.7  # Use the MySQL 5.7 image
     container_name: mysql  # Name the container "mysql"
     environment:  # Environment variables for MySQL
